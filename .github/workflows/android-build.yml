@@ -1,4 +1,4 @@
-name: Android APK Build (FINAL FIXED)
+name: Android APK Build FIX
 
 on:
   push:
@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -18,24 +18,25 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Android SDK
+      - name: Install Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Accept licenses
         run: yes | sdkmanager --licenses
 
-      - name: Install SDK packages
-        run: sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+      - name: Install build tools
+        run: |
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
+      # 🔥 ROOT FIX: use correct gradle path
       - name: Make gradlew executable
-        run: chmod +x ./Android/src/gradlew
+        run: chmod +x gradlew
 
-      - name: Build APK
-        working-directory: ./Android/src
+      - name: Build Debug APK
         run: ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: NexMind-AI-APK
-          path: Android/src/app/build/outputs/apk/debug/
+          name: app-debug
+          path: app/build/outputs/apk/debug/

@@ -1,8 +1,9 @@
-name: Android APK Build (STABLE FIX)
+name: Build Android APK
 
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,26 +19,21 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 🔥 Use built-in Android SDK (NO setup-android)
-      - name: Install Android SDK tools
+      - name: Install Android SDK (basic)
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip
-          mkdir -p $HOME/android-sdk
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-
-      - name: Accept licenses
-        run: echo "y" | true
 
       - name: Make gradlew executable
-        run: chmod +x ./Android/src/gradlew
+        working-directory: ./Android/src
+        run: chmod +x gradlew
 
-      - name: Build Debug APK
+      - name: Build APK
         working-directory: ./Android/src
         run: ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: NexMind-AI-APK
+          name: app-debug-apk
           path: Android/src/app/build/outputs/apk/debug/app-debug.apk
